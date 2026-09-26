@@ -9,7 +9,9 @@
 .distance-marker,
 .timeline-point,
 .timeline-box,
-.section {
+.section,
+.axis-tick,
+.tick-line {
   top: calc((var(--max-altitude) - var(--altitude, 0)) / var(--meters-per-vh) * 1vh);
 }
 
@@ -115,6 +117,36 @@ header {
   color: #ffffff;
 }
 
+.axis-tick {
+  position: absolute;
+  left: 20px;        /* distance from the left edge of the screen */
+  width: 8vw;
+  max-width: 260px;
+  height: 8px;
+  background: #ffffff;
+  opacity: 0.7;
+  transform: translateY(-50%);   /* keep vertical centering only */
+  z-index: 1000;
+}
+
+.axis-tick-minor {
+  width: 4vw;
+  left: 20px;
+  max-width: 130px;
+  height: 4px;
+  opacity: 0.7;
+}
+
+.tick-line {
+  position: absolute;
+  left: 0;
+  width: 100vw;
+  height: 1px;
+  background: #ffffff;
+  opacity: 0.06;
+  z-index: 900;
+}
+
 .timeline-spine {
   position: fixed;
   top: 0;
@@ -204,10 +236,21 @@ header {
   top: 0;
   height: 100%;
   transform: translate(-50%, 36%);
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
 }
 
 .cursor {
   font-size: 32px;
+  transform: translateY(calc(var(--cursor-y, 0) * 1vh));
+}
+
+.altitude-readout {
+  font-family: "VT323", monospace;
+  font-size: 20px;
+  color: #ffffff;
+  white-space: nowrap;
   transform: translateY(calc(var(--cursor-y, 0) * 1vh));
 }
 
@@ -245,6 +288,44 @@ header {
   height: 10vh;
   padding: 0;
   font-family: "Press Start 2P", monospace;
+}
+
+.controller-panel {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  gap: 10px;
+  z-index: 10000;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  font-family: "Noto Sans", sans-serif;
+}
+
+.controller-panel input {
+  padding: 8px;
+  font-family: inherit;
+  border: 1px solid #333;
+  border-radius: 4px;
+  width: 120px;
+}
+
+.controller-panel button {
+  padding: 8px 12px;
+  font-family: inherit;
+  cursor: pointer;
+  background: #333;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-weight: bold;
+  transition: background 0.2s ease;
+}
+
+.controller-panel button:hover {
+  background: #555;
 }
 
 @media (max-width: 768px) {
