@@ -4,36 +4,239 @@ const metersPerVH = 1;
 const maxAltitude = 100100;
 const minAltitude = -11100;
 const rangeAltitude = maxAltitude - minAltitude;
-let rangeCounter = rangeAltitude;
 const timelineHeightVH = rangeAltitude / metersPerVH;
 
-const cursorContainer = document.querySelector(".cursor-container");
 const cursor = document.querySelector(".cursor");
 const landingPage = document.getElementById("landing-page");
-const topPage = document.getElementById("top-page");
-const bottomPage = document.getElementById("bottom-page");
-const titanicClick = document.getElementById("titanic");
-const challengerDeepClick = document.getElementById("challengerdeep");
-const blueWhaleClick = document.getElementById("bluewhale");
-const auroraClick = document.getElementById("aurora");
-const issClick = document.getElementById("iss");
-const burningClick = document.getElementById("burning");
-const kinabaluClick = document.getElementById("kinabalu");
-
-let cursorY = 0;
-let targetCursorY = 0;
-let titanicCount = 0;
-let challengerCount = 0;
-let blueWhaleCount = 0;
-let auroraCount = 0;
-let issClickCount = 0;
-let burningCount = 0;
-let kinabaluCount = 0;
-
-let topPageVisible = false;
-let bottomPageVisible = false;
 
 timeline.style.height = `${timelineHeightVH}vh`;
+
+// Ruler marks along the timeline. Most of these were previously ~185 hand-written
+// <div class="distance-marker"> elements in index.html; generating them here removes
+// that repetition. `id` lets other links jump to this mark; `href` makes the mark
+// itself a link to another anchor further up/down the page.
+const distanceMarkers = [
+  { altitude: 100000 },
+  { altitude: 99000 },
+  { altitude: 98000 },
+  { altitude: 97000 },
+  { altitude: 96000 },
+  { altitude: 95000 },
+  { altitude: 94000 },
+  { altitude: 93000 },
+  { altitude: 92000 },
+  { altitude: 91000 },
+  { altitude: 90000, href: "100km" },
+  { altitude: 89000 },
+  { altitude: 88000 },
+  { altitude: 87000 },
+  { altitude: 86000 },
+  { altitude: 85000 },
+  { altitude: 84000 },
+  { altitude: 83000 },
+  { altitude: 82000 },
+  { altitude: 81000 },
+  { altitude: 80000, href: "90km" },
+  { altitude: 79000 },
+  { altitude: 78000 },
+  { altitude: 77000 },
+  { altitude: 76000 },
+  { altitude: 75000 },
+  { altitude: 74000 },
+  { altitude: 73000 },
+  { altitude: 72000 },
+  { altitude: 71000 },
+  { altitude: 70000, id: "70km", href: "80km" },
+  { altitude: 69000 },
+  { altitude: 68000 },
+  { altitude: 67000 },
+  { altitude: 66000 },
+  { altitude: 65000 },
+  { altitude: 64000 },
+  { altitude: 63000 },
+  { altitude: 62000 },
+  { altitude: 61000 },
+  { altitude: 60000, href: "70km" },
+  { altitude: 59000 },
+  { altitude: 58000 },
+  { altitude: 57000 },
+  { altitude: 56000 },
+  { altitude: 55000 },
+  { altitude: 54000 },
+  { altitude: 53000 },
+  { altitude: 52000 },
+  { altitude: 51000 },
+  { altitude: 50000, id: "50km", href: "60km" },
+  { altitude: 49000 },
+  { altitude: 48000 },
+  { altitude: 47000 },
+  { altitude: 46000 },
+  { altitude: 45000 },
+  { altitude: 44000 },
+  { altitude: 43000 },
+  { altitude: 42000 },
+  { altitude: 41000 },
+  { altitude: 40000, id: "40km", href: "50km" },
+  { altitude: 39000 },
+  { altitude: 38000 },
+  { altitude: 37000 },
+  { altitude: 36000 },
+  { altitude: 35000 },
+  { altitude: 34000 },
+  { altitude: 33000 },
+  { altitude: 32000 },
+  { altitude: 31000 },
+  { altitude: 30000, id: "30km", href: "40km" },
+  { altitude: 29000 },
+  { altitude: 28000 },
+  { altitude: 27000 },
+  { altitude: 26000 },
+  { altitude: 25000 },
+  { altitude: 24000 },
+  { altitude: 23000 },
+  { altitude: 22000 },
+  { altitude: 21000 },
+  { altitude: 20000, href: "30km" },
+  { altitude: 19500 },
+  { altitude: 19000 },
+  { altitude: 18500 },
+  { altitude: 18000 },
+  { altitude: 17500 },
+  { altitude: 17000 },
+  { altitude: 16500 },
+  { altitude: 16000 },
+  { altitude: 15500 },
+  { altitude: 15000 },
+  { altitude: 14500 },
+  { altitude: 14000 },
+  { altitude: 13500 },
+  { altitude: 13000 },
+  { altitude: 12500 },
+  { altitude: 12000 },
+  { altitude: 11500 },
+  { altitude: 11000 },
+  { altitude: 10500 },
+  { altitude: 10000, href: "20km" },
+  { altitude: 9500 },
+  { altitude: 9000 },
+  { altitude: 8500 },
+  { altitude: 8000 },
+  { altitude: 7500 },
+  { altitude: 7000 },
+  { altitude: 6500 },
+  { altitude: 6000 },
+  { altitude: 5500 },
+  { altitude: 5000, href: "10km" },
+  { altitude: 4500 },
+  { altitude: 4000 },
+  { altitude: 3500 },
+  { altitude: 3000 },
+  { altitude: 2750 },
+  { altitude: 2500, href: "landing-page" },
+  { altitude: 2250 },
+  { altitude: 2000 },
+  { altitude: 1750 },
+  { altitude: 1500 },
+  { altitude: 1250 },
+  { altitude: 1000 },
+  { altitude: 750 },
+  { altitude: 500 },
+  { altitude: 250 },
+  { altitude: -100, href: "-1000m" },
+  { altitude: -200 },
+  { altitude: -300 },
+  { altitude: -400 },
+  { altitude: -500, href: "-1000m" },
+  { altitude: -600 },
+  { altitude: -700 },
+  { altitude: -800 },
+  { altitude: -900 },
+  { altitude: -1000, id: "-1000m", href: "-2000m" },
+  { altitude: -1100 },
+  { altitude: -1200 },
+  { altitude: -1300 },
+  { altitude: -1400 },
+  { altitude: -1500 },
+  { altitude: -1600 },
+  { altitude: -1700 },
+  { altitude: -1800 },
+  { altitude: -1900 },
+  { altitude: -2000, id: "-2000m", href: "-3000m" },
+  { altitude: -2100 },
+  { altitude: -2200 },
+  { altitude: -2300 },
+  { altitude: -2400 },
+  { altitude: -2500 },
+  { altitude: -2600 },
+  { altitude: -2700 },
+  { altitude: -2800 },
+  { altitude: -2900 },
+  { altitude: -3000, id: "-3000m", href: "-4000m" },
+  { altitude: -3100 },
+  { altitude: -3200 },
+  { altitude: -3300 },
+  { altitude: -3400 },
+  { altitude: -3500 },
+  { altitude: -3600 },
+  { altitude: -3700 },
+  { altitude: -3800 },
+  { altitude: -3900 },
+  { altitude: -4000, id: "-4000m", href: "-5000m" },
+  { altitude: -4100 },
+  { altitude: -4200 },
+  { altitude: -4300 },
+  { altitude: -4400 },
+  { altitude: -4500 },
+  { altitude: -5000, id: "-5000m", href: "-10000m" },
+  { altitude: -6000 },
+  { altitude: -6500 },
+  { altitude: -7000 },
+  { altitude: -7500 },
+  { altitude: -8000 },
+  { altitude: -8500 },
+  { altitude: -9000 },
+  { altitude: -9500 },
+  { altitude: -10000, id: "-10000m", href: "bottom-page" },
+  { altitude: -10500 },
+  { altitude: -11000 },
+];
+function buildDistanceMarkers(markers) {
+  const fragment = document.createDocumentFragment();
+
+  markers.forEach(({ altitude, id, href }) => {
+    const marker = document.createElement("div");
+    marker.className = "distance-marker";
+    marker.dataset.altitude = altitude;
+    if (id) marker.id = id;
+
+    const label = document.createElement("strong");
+    label.textContent = `${altitude}m`;
+
+    if (href) {
+      const link = document.createElement("a");
+      link.href = `#${href}`;
+      link.appendChild(label);
+      marker.appendChild(link);
+    } else {
+      marker.appendChild(label);
+    }
+
+    fragment.appendChild(marker);
+  });
+
+  return fragment;
+}
+
+timeline.appendChild(buildDistanceMarkers(distanceMarkers));
+
+// Position every element that declares a data-altitude (timeline points, boxes,
+// sections, and the distance markers just added above).
+document.querySelectorAll("[data-altitude]").forEach((box) => {
+  const meters = Number(box.dataset.altitude);
+  if (Number.isNaN(meters)) return;
+  const altitudeVH = (maxAltitude - meters) / metersPerVH;
+  box.style.top = `${altitudeVH}vh`;
+});
 
 window.addEventListener("load", () => {
   if (landingPage) {
@@ -42,13 +245,6 @@ window.addEventListener("load", () => {
       block: "center",
     });
   }
-});
-
-document.querySelectorAll("[data-altitude]").forEach((box) => {
-  const meters = Number(box.dataset.altitude);
-  if (Number.isNaN(meters)) return;
-  const altitudeVH = (maxAltitude - meters) / metersPerVH;
-  box.style.top = `${altitudeVH}vh`;
 });
 
 const timelineObserverCallback = (entries) => {
@@ -77,6 +273,49 @@ timelineElements.forEach((element) => {
   observer.observe(element);
 });
 
+// Cursor icon by scroll distance (checked in order, first match wins).
+const cursorIcons = [
+  { belowDistance: 20000, icon: "🚀" },
+  { belowDistance: 40000, icon: "🔥" },
+  { belowDistance: 80000, icon: "🎈" },
+  { belowDistance: 99000, icon: "✈️" },
+  { belowDistance: 100160, icon: "😀" },
+];
+const DEFAULT_CURSOR_ICON = "🤿";
+
+function iconForDistance(distance) {
+  const zone = cursorIcons.find((z) => distance < z.belowDistance);
+  return zone ? zone.icon : DEFAULT_CURSOR_ICON;
+}
+
+// Body background class by scroll distance (checked in order, first match wins).
+const backgroundZones = [
+  { maxDistance: 10500, className: "starrynight" },
+  { maxDistance: 20040, className: "aurora" },
+  { maxDistance: 40020, className: "meteor" },
+  { maxDistance: 87500, className: "ozoneclouds" },
+  { maxDistance: 97500, className: "lightclouds" },
+  { maxDistance: 100550, className: "transition1" },
+  { maxDistance: 100770, className: "transition2" },
+  { maxDistance: 100950, className: "transition3" },
+  { maxDistance: 101500, className: "mesosphere" },
+  { maxDistance: 102000, className: "transition4" },
+  { maxDistance: 125000, className: "dark" },
+];
+const DEFAULT_BACKGROUND_CLASS = "defaultcolor";
+const backgroundClassNames = [
+  DEFAULT_BACKGROUND_CLASS,
+  ...backgroundZones.map((z) => z.className),
+];
+
+function backgroundClassForDistance(distance) {
+  const zone = backgroundZones.find((z) => distance <= z.maxDistance);
+  return zone ? zone.className : DEFAULT_BACKGROUND_CLASS;
+}
+
+let cursorY = 0;
+let targetCursorY = 0;
+
 // Updates cursor position when scrolling event fires
 window.addEventListener("scroll", () => {
   const distanceFromTop = (window.scrollY / window.innerHeight) * 100;
@@ -88,63 +327,10 @@ window.addEventListener("scroll", () => {
   //ensures that the cursor does not go off screen while scrolling
   targetCursorY = Math.max(-1, Math.min(maxOffsetVH, distanceFromTop * scale));
 
-  // Cursor shape based on height
-  if (distanceFromTop < 20000) {
-    cursor.textContent = "🚀";
-  } else if (distanceFromTop < 40000) {
-    cursor.textContent = "🔥";
-  } else if (distanceFromTop < 80000) {
-    cursor.textContent = "🎈";
-  } else if (distanceFromTop < 99000) {
-    cursor.textContent = "✈️";
-  } else if (distanceFromTop < 100160) {
-    cursor.textContent = "😀";
-  } else {
-    cursor.textContent = "🤿";
-  }
-  // Body background based on height
-  document.body.classList.remove(
-    "defaultcolor",
-    "transition1",
-    "troposphere",
-    "transition2",
-    "stratosphere",
-    "transition3",
-    "mesosphere",
-    "transition4",
-    "aurora",
-    "starrynight",
-    "ozoneclouds",
-    "lightclouds",
-    "meteor",
-    "dark"
-  );
+  cursor.textContent = iconForDistance(distanceFromTop);
 
-  if (distanceFromTop <= 10500) {
-    document.body.classList.add("starrynight");
-  } else if (distanceFromTop <= 20040) {
-    document.body.classList.add("aurora");
-  } else if (distanceFromTop <= 40020) {
-    document.body.classList.add("meteor");
-  } else if (distanceFromTop <= 87500) {
-    document.body.classList.add("ozoneclouds");
-  } else if (distanceFromTop <= 97500) {
-    document.body.classList.add("lightclouds");
-  } else if (distanceFromTop <= 100550) {
-    document.body.classList.add("transition1");
-  } else if (distanceFromTop <= 100770) {
-    document.body.classList.add("transition2");
-  } else if (distanceFromTop <= 100950) {
-    document.body.classList.add("transition3");
-  } else if (distanceFromTop <= 101500) {
-    document.body.classList.add("mesosphere");
-  } else if (distanceFromTop <= 102000) {
-    document.body.classList.add("transition4");
-  } else if (distanceFromTop <= 125000) {
-    document.body.classList.add("dark");
-  } else {
-    document.body.classList.add("defaultcolor");
-  }
+  document.body.classList.remove(...backgroundClassNames);
+  document.body.classList.add(backgroundClassForDistance(distanceFromTop));
 });
 
 function linearInterpolation(current, target, factor) {
@@ -162,97 +348,98 @@ function animateCursor() {
 
 animateCursor();
 
-titanicClick.addEventListener("click", () => {
-  if (titanicCount == 0) {
-    titanicClick.innerHTML = `<img src ="assets/oceangate.jpg"/>
+// Click-to-reveal boxes: each one swaps between its original HTML (as written in
+// index.html) and an alternate version, toggling back and forth on every click.
+const toggleContent = [
+  {
+    id: "titanic",
+    alt: `<img src="assets/oceangate.jpg" />
     <strong>OceanGate incident [3775m]</strong><br />
-        18 June 2023, near the wrecksite of Titanic`;
-    titanicCount = 1;
-  } else {
-    titanicClick.innerHTML = `<img src="assets/titanic.jpg" />
-        <strong>Titanic wreckage <br />[3800 m]</strong><br />
-        15 April 1912, 325 nmi (600 km) south-southeast of Newfoundland, North
-        Atlantic Ocean
-      </div>n`;
-    titanicCount = 0;
-  }
-});
-
-challengerDeepClick.addEventListener("click", () => {
-  if (challengerCount == 0) {
-    challengerDeepClick.innerHTML = `<strong>First solo dive</strong><br />
-        James Cameron, 25 March 2012`;
-    challengerCount = 1;
-  } else {
-    challengerDeepClick.innerHTML = `<strong>Deepest known point of the Earth seabed [~10935m]</strong><br />
-        Challenger Deep, Mariana Trench, 200 km east of Mariana Islands, Pacific
-        Ocean`;
-    challengerCount = 0;
-  }
-});
-
-blueWhaleClick.addEventListener("click", () => {
-  if (blueWhaleCount == 0) {
-    blueWhaleClick.innerHTML = ` <strong
+    18 June 2023, near the wrecksite of Titanic`,
+  },
+  {
+    id: "challengerdeep",
+    alt: `<strong>First solo dive</strong><br />
+        James Cameron, 25 March 2012`,
+  },
+  {
+    id: "bluewhale",
+    alt: `<strong
           >Photosynthesis ends completely; bioluminescence common [1,000
           m]</strong
-        >`;
-    blueWhaleCount = 1;
-  } else {
-    blueWhaleClick.innerHTML = `<img src="assets/bluewhale.jpg" />
-        <strong>Blue whales <br />[~1000 m]</strong><br />
-        Prefer depths of 400-1,000 meters for krill, but also seen closer to
-        shore.
-      </div>`;
-    blueWhaleCount = 0;
+        >`,
+  },
+  { id: "aurora", alt: `<img src="assets/aurora-borealis.jpg" />` },
+  { id: "iss", alt: `<img src="assets/ISS.jpg" />` },
+  { id: "burning", alt: `<img src="assets/burningstar.avif" />` },
+  { id: "kinabalu", alt: `<img src="assets/me_kinabalu.png" />` },
+];
+
+toggleContent.forEach(({ id, alt }) => {
+  const element = document.getElementById(id);
+  if (!element) return;
+
+  const original = element.innerHTML;
+  let showingAlt = false;
+
+  element.addEventListener("click", () => {
+    element.innerHTML = showingAlt ? original : alt;
+    showingAlt = !showingAlt;
+  });
+});
+
+const altitudeInput = document.getElementById("altitude-input");
+const goBtn = document.getElementById("go-btn");
+const upBtn = document.getElementById("up-btn");
+const downBtn = document.getElementById("down-btn");
+
+// Helper function to scroll to a specific altitude in meters
+function scrollToAltitude(targetAltitude) {
+  // Constrain the target within the timeline's min and max bounds
+  const clampedAltitude = Math.max(minAltitude, Math.min(maxAltitude, targetAltitude));
+
+  // Calculate the target viewport height (vh) based on existing timeline logic
+  const altitudeVH = (maxAltitude - clampedAltitude) / metersPerVH;
+
+  // Convert vh to pixels for the window.scrollTo method
+  const targetPixels = (altitudeVH * window.innerHeight) / 100;
+
+  window.scrollTo({
+    top: targetPixels,
+    behavior: "smooth"
+  });
+}
+
+// "Go" button event listener
+goBtn.addEventListener("click", () => {
+  const target = parseFloat(altitudeInput.value);
+  if (!isNaN(target)) {
+    scrollToAltitude(target);
   }
 });
 
-auroraClick.addEventListener("click", () => {
-  if (auroraCount == 0) {
-    auroraClick.innerHTML = `<img src = "assets/aurora-borealis.jpg"/>`;
-    auroraCount = 1;
-  } else {
-    auroraClick.innerHTML = `<strong>Auroras form <br />[above 80,000 m]</strong><br />`;
-    auroraCount = 0;
+// Allow hitting "Enter" in the input field to trigger the scroll
+altitudeInput.addEventListener("keypress", (e) => {
+  if (e.key === "Enter") {
+    const target = parseFloat(altitudeInput.value);
+    if (!isNaN(target)) {
+      scrollToAltitude(target);
+    }
   }
 });
 
-issClick.addEventListener("click", () => {
-  if (issClickCount == 0) {
-    issClick.innerHTML = `<img src = "assets/ISS.jpg"/>`;
-    issClickCount = 1;
-  } else {
-    issClick.innerHTML = `<strong
-          >International Space Station orbital drag becomes measurable
-          <br />[90,000 m]</strong
-        ><br />`;
-    issClickCount = 0;
-  }
+// "Up" button logic: Calculates current altitude from scroll position and jumps up 1000m
+upBtn.addEventListener("click", () => {
+  const currentVH = (window.scrollY * 100) / window.innerHeight;
+  const currentAltitude = maxAltitude - (currentVH * metersPerVH);
+  
+  scrollToAltitude(currentAltitude + 1000);
 });
 
-burningClick.addEventListener("click", () => {
-  if (burningCount == 0) {
-    burningClick.innerHTML = `<img src = "assets/burningstar.avif"/>`;
-    burningCount = 1;
-  } else {
-    burningClick.innerHTML = `<strong
-          >Meteor begins to burn due to atmospheric friction <br />[60,000
-          m]</strong
-        ><br />
-        This atmospheric region is called mesosphere`;
-    burningCount = 0;
-  }
-});
-
-kinabaluClick.addEventListener("click", () => {
-  if (kinabaluCount == 0) {
-    kinabalu.innerHTML = `<img src = "assets/me_kinabalu.png"/>`;
-    kinabaluCount = 1;
-  } else {
-    kinabaluClick.innerHTML = `<img src="assets/kinabalu.jpg" />
-        <strong>Mount Kinabalu highest peak <br />[4,095 m]</strong><br />
-        Tallest mountain in Malaysia`;
-    kinabaluCount = 0;
-  }
+// "Down" button logic: Calculates current altitude from scroll position and jumps down 1000m
+downBtn.addEventListener("click", () => {
+  const currentVH = (window.scrollY * 100) / window.innerHeight;
+  const currentAltitude = maxAltitude - (currentVH * metersPerVH);
+  
+  scrollToAltitude(currentAltitude - 1000);
 });

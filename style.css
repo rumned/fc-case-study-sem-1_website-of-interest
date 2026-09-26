@@ -1,3 +1,18 @@
+:root {
+  --max-altitude: 100100;
+  --meters-per-vh: 1;
+}
+
+/* Every element placed along the timeline gets its vertical position from a
+   single formula, driven by the --altitude custom property script.js sets
+   on it (see positionElement() in script.js). */
+.distance-marker,
+.timeline-point,
+.timeline-box,
+.section {
+  top: calc((var(--max-altitude) - var(--altitude, 0)) / var(--meters-per-vh) * 1vh);
+}
+
 body {
   margin: 0;
   scroll-behavior: smooth;
@@ -12,16 +27,8 @@ body.transition1 {
   background: linear-gradient(to top, #f4f4f4 0%, #67a5d2 20%);
 }
 
-body.troposphere {
-  background: #67a5d2;
-}
-
 body.transition2 {
   background: linear-gradient(to top, #67a5d2, #0a72b4);
-}
-
-body.stratosphere {
-  background: #0a72b4;
 }
 
 body.transition3 {
@@ -86,7 +93,6 @@ header {
 .distance-marker {
   position: absolute;
   left: 50%;
-  transform: translateX(-50%);
   width: 10vw;
   max-width: 260px;
   height: 2vh;
@@ -123,6 +129,7 @@ header {
 
 .timeline {
   position: relative;
+  height: calc(var(--timeline-height, 0) * 1vh);
 }
 
 .timeline-point {
@@ -201,6 +208,7 @@ header {
 
 .cursor {
   font-size: 32px;
+  transform: translateY(calc(var(--cursor-y, 0) * 1vh));
 }
 
 .top-section {
@@ -222,8 +230,13 @@ header {
 
 .middle-section a {
   text-decoration: none;
-  font: 2rem;
+  font-size: 2rem;
   color: #222;
+}
+
+.section-link {
+  text-decoration: none;
+  color: #ffffff;
 }
 
 .bottom-section {
