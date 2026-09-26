@@ -256,3 +256,59 @@ kinabaluClick.addEventListener("click", () => {
     kinabaluCount = 0;
   }
 });
+
+const altitudeInput = document.getElementById("altitude-input");
+const goBtn = document.getElementById("go-btn");
+const upBtn = document.getElementById("up-btn");
+const downBtn = document.getElementById("down-btn");
+
+// Helper function to scroll to a specific altitude in meters
+function scrollToAltitude(targetAltitude) {
+  // Constrain the target within the timeline's min and max bounds
+  const clampedAltitude = Math.max(minAltitude, Math.min(maxAltitude, targetAltitude));
+
+  // Calculate the target viewport height (vh) based on existing timeline logic
+  const altitudeVH = (maxAltitude - clampedAltitude) / metersPerVH;
+
+  // Convert vh to pixels for the window.scrollTo method
+  const targetPixels = (altitudeVH * window.innerHeight) / 100;
+
+  window.scrollTo({
+    top: targetPixels,
+    behavior: "smooth"
+  });
+}
+
+// "Go" button event listener
+goBtn.addEventListener("click", () => {
+  const target = parseFloat(altitudeInput.value);
+  if (!isNaN(target)) {
+    scrollToAltitude(target);
+  }
+});
+
+// Allow hitting "Enter" in the input field to trigger the scroll
+altitudeInput.addEventListener("keypress", (e) => {
+  if (e.key === "Enter") {
+    const target = parseFloat(altitudeInput.value);
+    if (!isNaN(target)) {
+      scrollToAltitude(target);
+    }
+  }
+});
+
+// "Up" button logic: Calculates current altitude from scroll position and jumps up 1000m
+upBtn.addEventListener("click", () => {
+  const currentVH = (window.scrollY * 100) / window.innerHeight;
+  const currentAltitude = maxAltitude - (currentVH * metersPerVH);
+  
+  scrollToAltitude(currentAltitude + 1000);
+});
+
+// "Down" button logic: Calculates current altitude from scroll position and jumps down 1000m
+downBtn.addEventListener("click", () => {
+  const currentVH = (window.scrollY * 100) / window.innerHeight;
+  const currentAltitude = maxAltitude - (currentVH * metersPerVH);
+  
+  scrollToAltitude(currentAltitude - 1000);
+});
