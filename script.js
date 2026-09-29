@@ -123,9 +123,9 @@ distanceMarkers.forEach((marker) => timelineContent.appendChild(buildAxisTick(ma
 generateMinorTickAltitudes(timelineConfig).forEach((altitude) =>
   timelineContent.appendChild(buildAxisTick(altitude, "axis-tick axis-tick-minor"))
 );
-generateTickLineAltitudes(timelineConfig).forEach((altitude) =>
-  timelineContent.appendChild(buildTickLine(altitude))
-);
+// generateTickLineAltitudes(timelineConfig).forEach((altitude) =>
+//   timelineContent.appendChild(buildTickLine(altitude))
+// );
 timeline.appendChild(timelineContent);
 
 // Everything above must run before this: it depends on #landing-page and
