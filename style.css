@@ -211,7 +211,7 @@ header {
 
 .timeline-box.is-visible {
   opacity: 0.99;
-  transform: translateY(-45%);
+  transform: translateY(-5%);
 }
 
 .timeline-box.is-visible:hover {
@@ -228,6 +228,7 @@ header {
   text-align: left;
   color: #ffffff;
   font-size: 6rem;
+  transform: translateY(-50%); /* Add this line */
 }
 
 .cursor-container {

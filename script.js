@@ -135,10 +135,7 @@ const timelineBoxes = document.querySelectorAll(".timeline-box");
 
 window.addEventListener("load", () => {
   if (landingPage) {
-    landingPage.scrollIntoView({
-      behavior: "smooth",
-      block: "center",
-    });
+    scrollToAltitude(0); 
   }
 });
 
@@ -247,25 +244,36 @@ const downBtn = document.getElementById("down-btn");
 // Matches the --meters-per-vh custom property set in style.css.
 const metersPerVH = 1;
 
-// Helper function to scroll to a specific altitude in meters
 function scrollToAltitude(targetAltitude) {
   const { minAltitude, maxAltitude } = timelineConfig;
-
-  // Constrain the target within the timeline's min and max bounds
   const clampedAltitude = Math.max(minAltitude, Math.min(maxAltitude, targetAltitude));
 
-  // Calculate the target viewport height (vh) based on existing timeline logic
-  const altitudeVH = (maxAltitude - clampedAltitude) / metersPerVH;
+  // 1. The physical coordinate of the altitude in vh
+  const documentVH = (maxAltitude - clampedAltitude) / metersPerVH;
 
-  // Convert vh to pixels for the window.scrollTo method
-  const targetPixels = (altitudeVH * window.innerHeight) / 100;
+  let targetVH;
+
+  // 2. Exact algebraic reversal of the scroll listener's formula:
+  // documentVH = targetVH + 36 + Math.max(-1, Math.min(12, targetVH * 0.05))
+  if (documentVH <= 15) {
+    // Zone 1: Cursor offset maxed out in the negative direction (-1vh)
+    targetVH = documentVH - 35;
+  } else if (documentVH >= 288) {
+    // Zone 3: Cursor offset maxed out in the positive direction (+12vh)
+    targetVH = documentVH - 48;
+  } else {
+    // Zone 2: Cursor offset is dynamically scaling (targetVH * 0.05)
+    targetVH = (documentVH - 36) / 1.05;
+  }
+
+  // 3. Convert calculated vh to pixels for scrolling
+  const targetPixels = (targetVH * window.innerHeight) / 100;
 
   window.scrollTo({
     top: targetPixels,
     behavior: "smooth"
   });
 }
-
 // "Go" button event listener
 goBtn.addEventListener("click", () => {
   const target = parseFloat(altitudeInput.value);
